@@ -32,6 +32,46 @@ npx create-next-app@latest . \
 
 ## 3. 開発環境の整備（コード品質の強制）
 
-### Prettier コードフォーマッターの導入
+### ブランチ
 
+chore/setup-developer-tooling
+
+### 1. Prettier コードフォーマッターの導入
+
+コードの見た目をプロジェクト全体で統一し、スタイルに関する不要な議論をなくす。ファイル保存時に自動整形を行う。
+
+```bash
+# 関連パッケージのインストール
 npm install --save-dev prettier eslint-config-prettier
+```
+
+### 2. コミット前品質チェック (Husky + lint-staged)
+
+コミット直前にESLintとPrettierを自動実行し、品質の低いコードの混入を物理的に防ぐ。
+
+```bash
+# 関連パッケージのインストール
+npm install --save-dev husky lint-staged
+
+# Husky v9 の初期化
+npx husky init
+
+# pre-commitフックの設定
+echo "lint-staged" > .husky/pre-commit
+# package.json は手動で編集
+```
+
+### 3. コミットメッセージ規約 (commitlint)
+
+Conventional Commits規約を強制し、Git履歴の可読性と一貫性を保つ。
+
+```bash
+# 関連パッケージのインストール
+npm install --save-dev @commitlint/cli @commitlint/config-conventional
+
+# 設定ファイルの作成
+touch commitlint.config.js
+
+# commit-msgフックの設定
+echo 'npx --no -- commitlint --edit "$1"' > .husky/commit-msg
+```
