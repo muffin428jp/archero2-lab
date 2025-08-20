@@ -75,3 +75,55 @@ touch commitlint.config.js
 # commit-msgフックの設定
 echo 'npx --no -- commitlint --edit "$1"' > .husky/commit-msg
 ```
+
+### 4：CI/CDパイプラインの確立 (GitHub Actions)
+
+このフェーズの目的は、GitHubリポジトリへの変更をトリガーに、アプリケーションのビルドとGitHub Pagesへのデプロイを自動化するCI/CDパイプラインを構築することである。
+
+#### 1. GitHubリポジトリの設定変更
+
+ワークフローがリポジトリへの書き込みとデプロイを実行できるよう、必要な権限を付与する。
+
+- **Actionsの書き込み権限許可:**
+  - `Settings` > `Actions` > `General` へ移動する。
+  - `Workflow permissions` を `Read and write permissions` に設定する。
+- **Pagesのデプロイ元設定:**
+  - `Settings` > `Pages` へ移動する。
+  - `Build and deployment` の `Source` を `GitHub Actions` に設定する。
+
+#### 2. Next.js設定ファイルの修正
+
+GitHub Pagesがサブディレクトリで公開されることに対応するため、`next.config.mjs`を修正する。
+
+- `basePath` と `assetPrefix` を設定に追加する。
+- これらの設定は、環境変数 `GITHUB_ACTIONS` が `true` の場合にのみ有効になるよう条件分岐させる。これにより、ローカル開発環境に影響が出るのを防ぐ。
+
+#### 3. ワークフローファイルの分割と作成
+
+責務に応じて、CI（品質チェック）とCD（デプロイ）のワークフローファイルを分割する。
+
+- **`push-check.yml` (プッシュ時スモークテスト):**
+  - フィーチャーブランチへの`push`をトリガーに実行される。`main`ブランチは対象外とする。
+  - 高速なフィードバックを提供するため、依存関係のインストールとビルドチェックのみを実行する。
+- **`pull_request-check.yml` (PR時クオリティゲート):**
+  - `main`ブランチをターゲットとする`pull_request`をトリガーに実行される。
+  - マージ前の品質を担保するため、リントチェック、テスト、ビルドなど、包括的なチェックを実行する。
+- **`deploy.yml` (デプロイ):**
+  - `main`ブランチへの`push`（マージ）をトリガーに実行される。
+  - ビルド成果物をアーティファクトとしてアップロードし、GitHub Pagesへデプロイする。
+
+#### 4. `.nvmrc`ファイルの追加
+
+CI環境とローカル環境のNode.jsバージョンを確実に一致させるため、`.nvmrc`ファイルに現在のNode.jsバージョンをファイルに書き出す。
+
+```bash
+node --version > .nvmrc
+```
+
+#### 5. ブランチ保護ルールの設定
+
+`main`ブランチの品質を保護するため、マージに条件を設定する。
+
+- `Settings` > `Branches` で、`main`ブランチの保護ルールを編集する。
+- `Require status checks to pass before merging` を有効にする。
+- 必須チェックとして、`pull_request-check.yml`で定義したジョブ（例: `quality-check`）を指定する。
