@@ -1,16 +1,13 @@
-name: Pull Request Check
+name: PR Quality Gate
 
 on:
   pull_request:
-    branches-ignore:
+    branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
   workflow_dispatch:
 
 jobs:
-  pull_request-check:
+  quality-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
