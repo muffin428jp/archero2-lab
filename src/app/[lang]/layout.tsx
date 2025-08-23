@@ -1,6 +1,6 @@
 import './globals.css'
 
-export default async function RootLayout({
+export default async function LangLayout({
   children,
   params,
 }: {
@@ -8,9 +8,5 @@ export default async function RootLayout({
   params: { lang: string }
 }) {
   const { lang } = await params
-  return (
-    <html lang={lang}>
-      <body>{children}</body>
-    </html>
-  )
+  return <div data-lang={lang}>{children}</div>
 }
