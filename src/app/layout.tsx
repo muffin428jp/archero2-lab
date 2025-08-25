@@ -1,3 +1,4 @@
+import './globals.css'
 import React from 'react'
 
 // このレイアウトは、src/app/page.tsx (リダイレクトページ) のために存在する
