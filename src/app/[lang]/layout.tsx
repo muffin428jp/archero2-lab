@@ -1,4 +1,3 @@
-import './globals.css'
 import type { ReactNode } from 'react'
 
 export default async function LangLayout({
